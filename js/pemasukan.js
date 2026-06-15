@@ -127,6 +127,15 @@ async function simpanPemasukan(){
 
     const hasil = await res.json();
 
+    const pesan =
+      "✅ Pemasukan dari <b>" +
+      kategori +
+      "</b> sebesar <b>Rp " +
+      new Intl.NumberFormat("id-ID").format(
+        getNumber(nominal)
+      ) +
+      "</b> berhasil disimpan.";
+
     if(hasil.ok){
 
       btn.innerText = "Berhasil ✔";
@@ -141,6 +150,12 @@ async function simpanPemasukan(){
         resetForm();
         btn.innerText = "Simpan";
         btn.disabled = false;
+        sessionStorage.setItem(
+          "toastMessage",
+          pesan
+        );
+        window.location.href =
+          "dashboard.html";
 
       }, 800);
 

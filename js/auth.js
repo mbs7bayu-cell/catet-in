@@ -187,6 +187,8 @@
         "activeUserId"
       );
 
+      localStorage.removeItem("dashboard");
+
       showToast(
         "Session habis, silakan login lagi"
       );

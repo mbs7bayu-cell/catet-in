@@ -120,190 +120,247 @@ if(rememberLogin){
 
 // ================= LOAD DASHBOARD =================
 
-async function loadDashboard(){
+// ================== render dashboard =================
 
-  const saldoEl =
-    document.getElementById("saldo");
+function renderDashboard(hasil){
 
-  const masukEl =
-    document.getElementById("totalMasukBulan");
+  // saldo
+  document.getElementById("saldo").innerText =
+    "Rp " + formatRupiah(hasil.saldo || 0);
 
-  const keluarEl =
-    document.getElementById("totalKeluarBulan");
+  document.getElementById("totalMasukBulan").innerText =
+    "Rp " + formatRupiah(hasil.totalMasuk || 0);
 
-  const listTransaksiEl =
+  document.getElementById("totalKeluarBulan").innerText =
+    "Rp " + formatRupiah(hasil.totalKeluar || 0);
+
+  const list =
     document.getElementById("listTransaksi");
 
-  saldoEl.classList.add("skeleton-saldo");
-  masukEl.classList.add("skeleton-text");
-  keluarEl.classList.add("skeleton-text");
-  listTransaksiEl.classList.add("skeleton-card");
+  list.innerHTML = "";
+
+  const transaksi =
+    hasil.transaksi || [];
+
+  transaksi.sort((a, b) =>
+    (b.timestamp || 0) -
+    (a.timestamp || 0)
+  );
+
+  if(transaksi.length === 0){
+
+    list.innerHTML = `
+      <div class="kosong">
+        Belum ada transaksi
+      </div>
+    `;
+
+    return;
+  }
+
+  transaksi
+    .slice(0, 5)
+    .forEach(renderTransaksi);
+
+}
+
+// ========================= render transaksi ===========================
+function renderTransaksi(trx){
+
+  const list =
+    document.getElementById("listTransaksi");
+
+  const item =
+    document.createElement("div");
+
+  item.className =
+    "transaksiItem";
+
+  let warna = "#222";
+
+  if(trx.jenis === "masuk"){
+    warna = "#22c55e";
+  }
+
+  if(trx.jenis === "keluar"){
+    warna = "#ef4444";
+  }
+
+  if(trx.jenis === "transfer"){
+    warna = "#2d89ef";
+  }
+
+  item.innerHTML = `
+    <div class="transaksiHeader">
+
+      <div>
+
+        <strong>
+          ${trx.kategori.toUpperCase()}
+        </strong>
+
+        <div class="jenis">
+
+          ${
+            trx.jenis === "masuk"
+            ? `Masuk ke ${trx.sumber_tujuan_nama}`
+
+            : trx.jenis === "keluar"
+            ? `Keluar dari ${trx.sumber_asal_nama}`
+
+            : `${trx.sumber_asal_nama} → ${trx.sumber_tujuan_nama}`
+          }
+
+          <br>
+
+          Catatan:
+          ${trx.catatan || "-"}
+
+        </div>
+
+        <div class="tanggal">
+          ${formatTanggal(trx)}
+        </div>
+
+      </div>
+
+      <div style="text-align:right;">
+
+        <div
+          class="nominal"
+          style="color:${warna}"
+        >
+          Rp ${formatRupiah(trx.nominal)}
+        </div>
+
+        ${
+          trx.biaya_admin > 0
+          ? `
+            <div
+              class="jenis"
+              style="
+                text-align:right;
+                color:#ef4444;
+              "
+            >
+              Admin:
+              Rp ${formatRupiah(trx.biaya_admin)}
+            </div>
+          `
+          : ""
+        }
+
+        <button
+          class="btnHapus"
+          onclick="hapusTransaksi('${trx.id}')"
+        >
+          Hapus
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  list.appendChild(item);
+
+}
+
+// =========================== load dashboard ==========================
+async function loadDashboard(){
+
+  const cache =
+    localStorage.getItem("dashboard");
+
+  if(!cache){
+
+    showSkeleton();
+
+  }else{
+
+    hideSkeleton();
+
+    renderDashboard(
+      JSON.parse(cache)
+    );
+
+  }
 
   try{
 
     const res = await fetch(
-
       API +
       "?mode=dashboard&userId=" +
       user.userId
-
     );
 
     const hasil =
       await res.json();
 
-    // ================= SALDO =================
+    // simpan cache terbaru
+    localStorage.setItem(
+      "dashboard",
+      JSON.stringify(hasil)
+    );
 
-    document.getElementById("saldo")
-      .innerText =
-      "Rp " +
-      formatRupiah(hasil.saldo || 0);
-
-    // ================= TRANSAKSI =================
-
-    const list =
-      document.getElementById("listTransaksi");
-
-    list.innerHTML = "";
-
-    const transaksi = hasil.transaksi || [];
-
-    // tampilkan
-    document.getElementById("totalMasukBulan")
-    .innerText =
-    "Rp " + formatRupiah(hasil.totalMasuk || 0);
-
-    document.getElementById("totalKeluarBulan")
-    .innerText =
-    "Rp " + formatRupiah(hasil.totalKeluar || 0);
-
-    saldoEl.classList.remove("skeleton-saldo");
-    masukEl.classList.remove("skeleton-text");
-    keluarEl.classList.remove("skeleton-text");
-    listTransaksiEl.classList.remove("skeleton-card");
-
-
-    transaksi.sort((a, b) => {
-
-      return (
-        b.timestamp || 0
-      ) - (
-        a.timestamp || 0
-      );
-
-    });
-
-    // kosong
-    if(
-      !hasil.transaksi ||
-      hasil.transaksi.length === 0
-    ){
-
-      list.innerHTML = `
-        <div class="kosong">
-          Belum ada transaksi
-        </div>
-      `;
-
-
-      return;
-    }
-    
-    // render transaksi
-    transaksi
-    .slice(0,5)
-    .forEach(trx => {
-
-      const item =
-        document.createElement("div");
-
-      item.className =
-        "transaksiItem";
-
-      // warna nominal
-      let warna = "#222";
-
-      if(trx.jenis === "masuk"){
-        warna = "#22c55e";
-      }
-
-      if(trx.jenis === "keluar"){
-        warna = "#ef4444";
-      }
-
-      if(trx.jenis === "transfer"){
-        warna = "#2d89ef";
-      }
-
-      item.innerHTML = `
-        <div class="transaksiHeader">
-
-          <div>
-            <strong>${trx.kategori.toUpperCase()}</strong>
-
-              <div class="jenis">
-                ${
-                  trx.jenis === "masuk"
-                    ? `Masuk ke ${trx.sumber_tujuan_nama}`
-
-                  : trx.jenis === "keluar"
-                    ? `Keluar dari ${trx.sumber_asal_nama}`
-
-                  : trx.jenis === "transfer"
-                    ? `${trx.sumber_asal_nama} → ${trx.sumber_tujuan_nama}`
-
-                  : trx.jenis
-                }<br>
-
-                Catatan: ${trx.catatan || "-"}
-              </div>
-
-            <!-- TAMBAHAN TANGGAL -->
-            <div class="tanggal">
-              ${formatTanggal(trx)}
-            </div>
-
-          </div>
-
-          <div style="text-align:right;">
-
-            <div class="nominal" style="color:${warna}">
-              Rp ${formatRupiah(trx.nominal)}
-            </div>
-
-            ${
-              trx.biaya_admin > 0
-              ? `
-                <div class="jenis" style="text-align:right; color:#ef4444;">
-                  Admin: Rp ${formatRupiah(trx.biaya_admin)}
-                </div>
-              `
-              : ""
-            }
-
-            <button 
-              class="btnHapus" 
-              onclick="hapusTransaksi('${trx.id}')"
-            >
-              Hapus
-            </button>
-
-          </div>
-
-        </div>
-      `;
-
-
-      list.appendChild(item);
-
-    });
+    renderDashboard(hasil);
 
   }catch(err){
 
     console.error(err);
 
-    showToast("Gagal load dashboard");
+    showToast(
+      "Gagal load dashboard"
+    );
+
+  }finally{
+
+    hideSkeleton();
+
   }
+
+}
+
+// =================================== skeleton =================================
+
+function showSkeleton(){
+
+  document
+    .getElementById("saldo")
+    .classList.add("skeleton-saldo");
+
+  document
+    .getElementById("totalMasukBulan")
+    .classList.add("skeleton-text");
+
+  document
+    .getElementById("totalKeluarBulan")
+    .classList.add("skeleton-text");
+
+  document
+    .getElementById("listTransaksi")
+    .classList.add("skeleton-card");
+
+}
+
+function hideSkeleton(){
+
+  document
+    .getElementById("saldo")
+    .classList.remove("skeleton-saldo");
+
+  document
+    .getElementById("totalMasukBulan")
+    .classList.remove("skeleton-text");
+
+  document
+    .getElementById("totalKeluarBulan")
+    .classList.remove("skeleton-text");
+
+  document
+    .getElementById("listTransaksi")
+    .classList.remove("skeleton-card");
+
 }
 
 //format tanggal
@@ -384,8 +441,6 @@ async function hapusTransaksi(id){
 
 // ================= LOAD =================
 
-loadDashboard();
-
 window.addEventListener("pageshow", () => {
 
   const theme = localStorage.getItem("theme");
@@ -416,7 +471,15 @@ window.addEventListener("pageshow", () => {
   loadDashboard();
 });
 
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("DOMContentLoaded", () => {
+
+  const pesan =
+    sessionStorage.getItem("toastMessage");
+
+  if (pesan) {
+    showToast(pesan);
+    sessionStorage.removeItem("toastMessage");
+  }
 
   if(!document.hidden){
 

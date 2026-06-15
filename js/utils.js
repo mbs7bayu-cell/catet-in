@@ -1,7 +1,7 @@
 function showToast(msg) {
 
   const div = document.createElement("div");
-  div.innerText = msg;
+  div.innerHTML = msg;
 
   div.style.position = "fixed";
   div.style.bottom = "20px";
