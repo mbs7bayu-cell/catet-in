@@ -171,6 +171,9 @@ async function simpanTransfer(){
 
     const hasil = await res.json();
 
+    const pesan =
+      "✅ Transfer sebesar <b>Rp " + new Intl.NumberFormat("id-ID").format(nominal) + "</b> berhasil disimpan.";
+
     if(hasil.ok){
 
       btn.innerText = "Berhasil ✔";
@@ -185,6 +188,12 @@ async function simpanTransfer(){
         resetForm();
         btn.innerText = "Transfer";
         btn.disabled = false;
+        sessionStorage.setItem(
+          "toastMessage",
+          pesan
+        );
+        window.location.href =
+          "dashboard.html";
 
       }, 800);
 
