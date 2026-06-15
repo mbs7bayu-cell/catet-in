@@ -441,37 +441,9 @@ async function hapusTransaksi(id){
 
 // ================= LOAD =================
 
-window.addEventListener("pageshow", () => {
-
-  const theme = localStorage.getItem("theme");
-  const btn =
-    document.querySelector(".themeBtn");
-  const meta =
-    document.querySelector(
-      'meta[name="theme-color"]'
-    );
-
-  if (theme === "dark") {
-    document.body.classList.add("dark");
-    btn.textContent = "☀️";
-    meta.setAttribute(
-      "content",
-      "#121212"
-    );
-  } else {
-    document.body.classList.remove("dark");
-    btn.textContent = "🌙";
-    meta.setAttribute(
-      "content",
-      "#3B82C4"
-    );
-
-  }
-
-  loadDashboard();
-});
-
 document.addEventListener("DOMContentLoaded", () => {
+
+  loadThemeDashboard();
 
   const pesan =
     sessionStorage.getItem("toastMessage");

@@ -2,11 +2,49 @@ let dompetList = [];
 
 async function loadData() {
 
-  const res = await fetch(API);
+  const cache =
+    localStorage.getItem("dompetCache");
 
-  dompetList = await res.json();
+  if(cache){
 
-  render();
+    dompetList =
+      JSON.parse(cache);
+
+    render();
+
+  }else{
+
+    document
+      .getElementById("dompetList")
+      .classList.add("skeleton-card");
+
+  }
+
+  try{
+
+    const res =
+      await fetch(API);
+
+    dompetList =
+      await res.json();
+
+    localStorage.setItem(
+      "dompetCache",
+      JSON.stringify(dompetList)
+    );
+
+    render();
+
+  }catch(err){
+
+    console.error(err);
+
+    showToast(
+      "Gagal memuat dompet"
+    );
+
+  }
+
 }
 
 function render() {
@@ -14,8 +52,6 @@ function render() {
   const dompetListEl =
     document.getElementById("dompetList");
   
-  dompetListEl.classList.add("skeleton-card");
-
   const user = JSON.parse(
     sessionStorage.getItem("user") ||
     localStorage.getItem("user") ||
@@ -72,12 +108,12 @@ function render() {
       </div>
     `;
 
-    dompetListEl.classList.remove("skeleton-card");
-
-
     dompetListEl.appendChild(card);
 
   });
+
+      dompetListEl.classList.remove("skeleton-card");
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {
