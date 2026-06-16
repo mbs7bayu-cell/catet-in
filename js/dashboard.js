@@ -47,6 +47,37 @@ function kredit(){
   window.location.href = "kredit.html";
 }
 
+// ================ sembunyikan saldo ========================
+  let saldoDisembunyikan =
+  localStorage.getItem("hideSaldo") === "true";
+
+  let dashboardData = null;
+
+  // ================== toggle saldo ==========================
+
+  function toggleSaldo(){
+
+  saldoDisembunyikan =
+    !saldoDisembunyikan;
+
+  localStorage.setItem(
+    "hideSaldo",
+    saldoDisembunyikan
+  );
+
+  document.getElementById(
+    "btnToggleSaldo"
+  ).textContent =
+  saldoDisembunyikan
+    ? "🙈"
+    : "👁";
+
+  if(dashboardData){
+    renderDashboard(dashboardData);
+  }
+
+}
+
 
 
 // ================== parse tanggal ===============
@@ -124,15 +155,23 @@ if(rememberLogin){
 
 function renderDashboard(hasil){
 
+  dashboardData = hasil;
+
   // saldo
   document.getElementById("saldo").innerText =
-    "Rp " + formatRupiah(hasil.saldo || 0);
+    saldoDisembunyikan
+      ? "••••••••"
+      : "Rp " + formatRupiah(hasil.saldo || 0);
 
   document.getElementById("totalMasukBulan").innerText =
-    "Rp " + formatRupiah(hasil.totalMasuk || 0);
+    saldoDisembunyikan
+      ? "••••••••"
+      : "Rp " + formatRupiah(hasil.totalMasuk || 0);
 
   document.getElementById("totalKeluarBulan").innerText =
-    "Rp " + formatRupiah(hasil.totalKeluar || 0);
+    saldoDisembunyikan
+      ? "••••••••"
+      : "Rp " + formatRupiah(hasil.totalKeluar || 0);
 
   const list =
     document.getElementById("listTransaksi");
@@ -428,9 +467,11 @@ async function hapusTransaksi(id){
 
     if(hasil.success){
       showToast("Transaksi berhasil dihapus");
-      loadDashboard(); // refresh data
+      loadDashboard();
     }else{
-      showToast("Gagal menghapus transaksi");
+      showToast(
+        hasil.msg || "Gagal menghapus transaksi"
+      );
     }
 
   }catch(err){
@@ -452,6 +493,19 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast(pesan);
     sessionStorage.removeItem("toastMessage");
   }
+
+  const btn =
+      document.getElementById(
+        "btnToggleSaldo"
+      );
+
+    if(btn){
+      btn.textContent =
+        saldoDisembunyikan
+          ? "🙈"
+          : "👁";
+    }
+
 
   if(!document.hidden){
 

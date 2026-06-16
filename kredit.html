@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#3B82C4" id="themeColor">
-<title>Dompet</title>
+<title>Kredit</title>
 <script src="js/theme-init.js"></script>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/button.css">
@@ -16,6 +16,36 @@
 </head>
 
 <body>
+
+<div id="modalBayar" class="modal-kredit hidden">
+
+  <div class="modal-content-kredit">
+
+    <h3>Bayar Kredit</h3>
+
+    <label>Dompet</label>
+    <select id="dompetBayar">
+    </select>
+
+    <label>Nominal</label>
+    <input
+      type="text"
+      id="nominalBayar"
+      placeholder="Masukkan nominal"
+      inputmode="numeric"
+    />
+
+    <button onclick="submitBayarKredit()" id="bayarKredit">
+      Bayar
+    </button>
+
+    <button onclick="closeBayarKredit()">
+      Batal
+    </button>
+
+  </div>
+
+</div>
 
 <div id="modalKredit" class="modal">
 
@@ -54,12 +84,12 @@
         inputmode="numeric"
         placeholder="0"
       >
-    </div>
 
-    <label for="sumberTujuan">Ke Dompet</label>
-    <select id="sumberTujuan">
-            <option value="">-- pilih dompet --</option>
-    </select>
+      <label for="sumberTujuan">Ke Dompet</label>
+      <select id="sumberTujuan">
+              <option value="">-- pilih dompet --</option>
+      </select>
+    </div>
 
     <label for="catatan">Catatan</label>
     <textarea
@@ -98,7 +128,9 @@
   
 
   <div class="card">  
+    
     <button id="btnKredit">+ Tambah Kredit</button>
+
   </div>
 
   <div class="bottomNav">

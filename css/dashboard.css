@@ -297,3 +297,50 @@ body{
   }
 
 }
+
+/* ==================== btn eye ================ */
+.saldoHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.btnEye{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:32px;
+  height:32px;
+
+  padding:0;
+
+  border:none;
+  border-radius:50%;
+
+  background:transparent;
+  color:var(--text);
+
+  cursor:pointer;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btnEye:hover{
+  background:rgba(0,0,0,.08);
+}
+
+.dark .btnEye:hover{
+  background:rgba(255,255,255,.08);
+}
+
+.btnEye:focus{
+  outline:none;
+}
+
+.labelSaldo{
+  font-size:12px;
+  color:var(--text);
+}
+
+

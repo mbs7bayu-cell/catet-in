@@ -71,13 +71,29 @@
 
   <div class="card">
 
-    <div style="margin:0; padding:0; color:var(--text); font-size:12px;">Total Saldo :</div>
+    <div class="saldoHeader">
 
-    <div style="text-align:center;">
-    
-      <div id="saldo" class="saldo skeleton-saldo"></div>
+      <span class="labelSaldo">
+        Total Saldo :
+      </span>
+
+    <button
+      id="btnToggleSaldo"
+      class="btnEye"
+      onclick="toggleSaldo()"
+    >
+      👁
+    </button>
 
     </div>
+
+    <div style="text-align:center;">
+      <div
+        id="saldo"
+        class="saldo skeleton-saldo"
+      ></div>
+    </div>
+
   </div>
 
   <div class="card">

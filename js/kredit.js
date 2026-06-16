@@ -1,4 +1,5 @@
 let kreditList = [];
+let daftarDompet = [];
 
 async function loadData() {
 
@@ -60,19 +61,100 @@ function render() {
 
   filtered.forEach(d => {
 
+    const total = Number(d.nominal_kredit);
+    const sisa = Number(d.sisa_kredit);
+
+    let tombol = "";
+
+    // belum pernah dibayar
+    if(sisa === total){
+
+      tombol = `
+        <button
+          onclick="openBayarKredit('${d.id_kredit}')"
+          class="btnBayarKredit"
+        >
+          Bayar
+        </button>
+
+        <button
+          onclick="hapusKredit('${d.id_kredit}')"
+          class="btnHapusKredit"
+        >
+          Hapus
+        </button>
+      `;
+
+    }
+    // sudah dibayar sebagian
+    else if(sisa > 0){
+
+      tombol = `
+        <button
+          onclick="openBayarKredit('${d.id_kredit}')"
+          class="btnBayarKredit"
+        >
+          Bayar
+        </button>
+      `;
+
+    }
+    // lunas
+    else{
+
+      tombol = `
+        <button
+          onclick="hapusKredit('${d.id_kredit}')"
+          class="btnHapusKredit"
+        >
+          Hapus
+        </button>
+      `;
+
+    }
+
     const card =
       document.createElement("div");
 
     card.innerHTML = `
-      <div class="dompetCard">
+      <div class="kreditCard">
 
-        <div>
+        <div class="kreditInfo">
           <h4>${d.nama_kredit}</h4>
           <small>${d.catatan}</small>
         </div>
 
-        <div class="dompetSaldo">
-          <b>Rp ${Number(d.nominal_kredit).toLocaleString("id-ID")}</b>
+        <div class="kreditNominal">
+          <div>
+            <span>Total</span>
+            <b>
+              Rp ${Number(d.nominal_kredit)
+                .toLocaleString("id-ID")}
+            </b>
+          </div>
+        </div>
+
+        <div class="kreditNominal">
+          <div>
+            <span>Sisa</span>
+            <b class="sisaKredit">
+              Rp ${Number(d.sisa_kredit)
+                .toLocaleString("id-ID")}
+            </b>
+          </div>
+        </div>
+
+        <div class="kreditNominal">
+            <div>
+            <span>Status</span>
+            <b>
+              ${d.status}
+            </b>
+          </div>
+        </div>
+
+        <div class="kreditAction">
+            ${tombol}
         </div>
 
       </div>
@@ -94,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   formatInputRupiah("nominalKredit");
   formatInputRupiah("nominalPinjaman");
+  formatInputRupiah("nominalBayar");
 
   const btnKredit =
     document.getElementById("btnKredit");
@@ -117,6 +200,26 @@ function closeModal(){
   document.getElementById("modalKredit")
     .style.display = "none";
 }
+
+// ================ pilihan jenis barang ====================
+
+document
+.getElementById("jenisKredit")
+.addEventListener("change", function(){
+
+  if(this.value === "Barang"){
+
+    document.getElementById(
+      "nominalPinjaman"
+    ).value = "";
+
+    document.getElementById(
+      "sumberTujuan"
+    ).value = "";
+
+  }
+
+});
 
 async function simpanKredit(){
 
@@ -166,14 +269,19 @@ async function simpanKredit(){
     return;
   }
 
-  if(!nominalPinjaman || Number(nominalPinjaman) <= 0){
-    showToast("Nominal tidak valid");
-    return;
-  }
+  // ================ validasi pinjaman =================
+  if(jenisKredit === "Pinjaman"){
 
-  if(!sumberTujuan){
-    showToast("Pilih dompet tujuan");
-    return;
+    if(!nominalPinjaman ||
+      Number(nominalPinjaman) <= 0){
+      showToast("Nominal pinjaman tidak valid");
+      return;
+    }
+
+    if(!sumberTujuan){
+      showToast("Pilih dompet tujuan");
+      return;
+    }
   }
 
   // ================= DATA =================
@@ -190,9 +298,15 @@ async function simpanKredit(){
 
     nominal_kredit: getNumber(nominalKredit),
 
-    nominal_pinjaman: getNumber(nominalPinjaman),
+    nominal_pinjaman:
+      jenisKredit === "Pinjaman"
+        ? getNumber(nominalPinjaman)
+        : 0,
 
-    sumber_tujuan: sumberTujuan,
+    sumber_tujuan:
+      jenisKredit === "Pinjaman"
+        ? sumberTujuan
+        : "",
 
     catatan: catatan
 
@@ -312,6 +426,9 @@ async function loadDompet(){
     const milikUser =
       data.filter(d => d.id_user === user.userId);
 
+    daftarDompet = milikUser;
+
+
     milikUser.forEach(d => {
 
       const text =
@@ -357,6 +474,170 @@ function formatInputRupiah(id){
   });
 }
 
+// =================== hapus kredit =====================
+async function hapusKredit(idKredit){
+
+const user = JSON.parse(
+    sessionStorage.getItem("user") ||
+    localStorage.getItem("user") ||
+    localStorage.getItem("activeUser")
+  );
+
+if(!user){
+    location.href = "login.html";
+}
+
+if(!confirm("Yakin ingin menghapus kredit ini?")){
+return;
+}
+
+try{
+
+const res = await fetch(API, {
+  method: "POST",
+  body: JSON.stringify({
+    mode: "hapusKredit",
+    id_kredit: idKredit,
+    userId: user.userId
+  })
+});
+
+const hasil = await res.json();
+
+if(hasil.ok){
+
+  showToast("Kredit berhasil dihapus");
+
+  loadData();
+
+}else{
+
+  showToast(
+    hasil.msg || "Gagal menghapus kredit"
+  );
+
+}
+
+
+}catch(err){
+
+console.error(err);
+
+showToast("Error server");
+
+
+}
+
+}
+
+// ======================= bayar kredit =======================
+async function bayarKredit(idKredit, idDompet, nominal) {
+
+  const user = JSON.parse(
+    sessionStorage.getItem("user") ||
+    localStorage.getItem("user") ||
+    localStorage.getItem("activeUser")
+  );
+
+  const btn = document.getElementById("bayarKredit");
+
+  btn.disabled = true;
+  btn.innerText = "Menyimpan...";
+
+  const res = await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      mode: "bayarKredit",
+      id_kredit: idKredit,
+      id_dompet: idDompet,
+      userId: user.userId,
+      nominal: nominal
+    })
+  });
+
+  const hasil = await res.json();
+
+  if (hasil.ok) {
+    showToast("Pembayaran berhasil");
+    closeBayarKredit();
+    loadData();
+    btn.innerText = "Berhasil ✔";
+
+    setTimeout(() => {
+
+        resetForm();
+        btn.innerText = "Simpan";
+        btn.disabled = false;
+
+        window.location.href = "kredit.html";
+
+      }, 800);
+  } else {
+    showToast(hasil.msg || "Gagal bayar");
+    btn.disabled = false;
+    btn.innerText = "Simpan";
+  }
+      
+}
+
+// ========================= modal bayar kredit ===================
+let selectedKreditId = null;
+
+function openBayarKredit(idKredit) {
+
+  selectedKreditId = idKredit;
+
+  const select =
+  document.getElementById("dompetBayar");
+
+  select.innerHTML = "";
+
+  daftarDompet.forEach(dompet => {
+
+    select.innerHTML += `
+      <option value="${dompet.id_sumber}">
+        ${dompet.nama} - Rp ${Number(dompet.saldo).toLocaleString("id-ID")}
+      </option>
+    `;
+
+  });
+
+  document
+    .getElementById("modalBayar")
+    .classList.remove("hidden");
+
+}
+
+function closeBayarKredit() {
+  document.getElementById("modalBayar").classList.add("hidden");
+  document.getElementById("nominalBayar").value = "";
+  selectedKreditId = null;
+}
+
+//============================= submit bayar kredit ==================
+async function submitBayarKredit() {
+
+  const nominal =
+    getNumber(document.getElementById("nominalBayar").value)
+  ;
+
+  const idDompet =
+    document.getElementById("dompetBayar").value;
+
+  if (!nominal || nominal <= 0) {
+    showToast("Nominal tidak valid");
+    return;
+  }
+
+  await bayarKredit(
+    selectedKreditId,
+    idDompet,
+    nominal
+  );
+
+}
+
+
 // ================= RESET FORM =================
 function resetForm(){
   document.getElementById("namaKredit").value = "";
@@ -366,3 +647,4 @@ function resetForm(){
   document.getElementById("nominalPinjaman").value = "";
 
 }
+

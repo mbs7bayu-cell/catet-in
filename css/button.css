@@ -251,9 +251,9 @@ color:#777;
 .dompetSaldo{
 font-weight:400;
 font-size:16px;
-margin-left:auto;
 text-align:right;
 color:#2d89ef;
+flex-shrink: 0;
 }
 
 /* EMPTY STATE */
@@ -290,6 +290,36 @@ cursor:pointer;
 }
 
 .btnEdit:hover{
+  background: #333333;
+}
+
+.btnHapusKredit{
+  width: 55px;
+  margin-left: auto;
+  margin-top: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #666666;
+  color: white;
+  cursor: pointer;
+}
+
+.btnBayarKredit {
+  width: 55px;
+  margin-left: auto;
+  margin-top: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #666666;
+  color: white;
+  cursor: pointer;
+}
+
+.btnHapusKredit:hover{
   background: #333333;
 }
 
@@ -485,4 +515,74 @@ cursor:pointer;
 /* ============ untuk kredit hidden nominal pinjaman =================== */
 .hidden{
   display:none;
+}
+
+.kreditCard{
+  background:var(--card);
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.kreditInfo h4{
+  margin:0;
+  font-size:17px;
+}
+
+.kreditInfo small{
+  color:var(--text);
+}
+
+.kreditNominal{
+  margin-top:12px;
+  display:flex;
+  justify-content: space-between;
+  
+}
+
+.kreditNominal span{
+  display:block;
+  font-size:12px;
+  color:var(--text);
+}
+
+.kreditNominal b{
+  font-size:16px;
+}
+
+.sisaKredit{
+  color:#2d89ef;
+}
+
+.kreditAction{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+  width: auto;
+}
+
+.kreditAction button{
+  flex:1;
+}
+
+.modal-kredit {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content-kredit {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+.hidden {
+  display: none;
 }
