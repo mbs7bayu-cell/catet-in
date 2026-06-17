@@ -135,6 +135,11 @@ height:44px;
   text-align: center;
 }
 
+.card h3 {
+  color: #777;
+}
+
+
 @media (max-width:376px){
 
   .card {

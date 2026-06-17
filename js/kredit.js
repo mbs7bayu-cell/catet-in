@@ -133,11 +133,22 @@ function render() {
       </div>
 
       <div class="kreditNominal">
-        <div>
-          <span>Total</span>
-          <b>
-            Rp ${Number(d.nominal_kredit).toLocaleString("id-ID")}
-          </b>
+        <div class="totalWrap">
+
+          <div>
+            <span>Total</span>
+            <b>
+              Rp ${Number(d.nominal_kredit).toLocaleString("id-ID")}
+            </b>
+          </div>
+
+          <button
+            onclick="event.stopPropagation(); openEditKredit('${d.id_kredit}')"
+            class="btnEditKredit"
+          >
+            ✏️
+          </button>
+
         </div>
       </div>
 
@@ -189,6 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
   formatInputRupiah("nominalKredit");
   formatInputRupiah("nominalPinjaman");
   formatInputRupiah("nominalBayar");
+  formatInputRupiah("editNominalKredit");
+  
 
   const btnKredit =
     document.getElementById("btnKredit");
@@ -613,7 +626,11 @@ function openBayarKredit(idKredit) {
   const select =
   document.getElementById("dompetBayar");
 
-  select.innerHTML = "";
+  select.innerHTML = `
+      <option value="">
+        -- pilih dompet --
+      </option>
+  `;
 
   daftarDompet.forEach(dompet => {
 
@@ -731,4 +748,120 @@ function tutupModalDetail(){
     .getElementById("modalDetailKredit")
     .style.display = "none";
 }
+
+// ================= edit kredit ==========================
+let selectedKreditEditId = null;
+  
+function formatInputRupiah(id){
+
+  const input = document.getElementById(id);
+
+  input.addEventListener("input", function () {
+
+    let angka = this.value.replace(/\D/g, "");
+
+    if(!angka){
+      this.value = "";
+      return;
+    }
+
+    this.value = "Rp " + new Intl.NumberFormat("id-ID").format(angka);
+
+  });
+
+}
+
+function openEditKredit(idKredit){
+
+  selectedKreditEditId = idKredit;
+
+  const kredit =
+    kreditList.find(
+      x => String(x.id_kredit) === String(idKredit)
+    );
+
+  if(!kredit){
+    alert("Data kredit tidak ditemukan");
+    return;
+  }
+
+  document.getElementById(
+    "editNominalKredit"
+  ).value =
+    "Rp " +
+    Number(kredit.nominal_kredit)
+      .toLocaleString("id-ID");
+
+  document.getElementById("modalEditKredit")
+    .style.display = "flex";
+}
+
+function closeEditKredit(){
+
+  document.getElementById(
+    "modalEditKredit"
+  ).style.display = "none";
+
+}
+
+
+async function simpanEditKredit(){
+
+  const user = JSON.parse(
+    sessionStorage.getItem("user") ||
+    localStorage.getItem("user") ||
+    localStorage.getItem("activeUser")
+  );
+
+  const nominal = getNumber(
+    document.getElementById(
+      "editNominalKredit"
+    ).value
+  );
+
+  const btn = document.getElementById("btnSimpanEdit");
+
+  btn.disabled = true;
+  btn.innerText = "Menyimpan...";
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      mode:"editKredit",
+      id_kredit:selectedKreditEditId,
+      userId:user.userId,
+      nominal_kredit:nominal
+    })
+  });
+
+  const hasil = await res.json();
+
+  if(hasil.ok){
+    btn.innerText = "Berhasil ✔";
+
+    showToast("Simpan Edit kredit berhasil");
+
+      setTimeout(() => {
+
+        resetForm();
+        btn.innerText = "Simpan";
+        btn.disabled = false;
+
+        window.location.href = "kredit.html";
+
+      }, 800);
+
+    return;
+  } else {
+    showToast(hasil.msg || "Gagal");
+
+      btn.disabled = false;
+      btn.innerText = "Simpan";
+  }
+
+  closeEditKredit();
+
+  loadData();
+}
+
 
