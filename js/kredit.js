@@ -113,6 +113,14 @@ function render() {
 
     }
 
+    const totalPersen = Number(d.nominal_kredit);
+    const sisaPersen = Number(d.sisa_kredit);
+
+    const persen =
+    Math.round(
+      ((totalPersen - sisaPersen) / totalPersen) * 100
+    );
+
     const card =
       document.createElement("div");
 
@@ -152,6 +160,15 @@ function render() {
             </b>
           </div>
         </div>
+
+        <div class="progressWrap">
+          <div
+            class="progressBar"
+            style="width:${persen}%"
+          ></div>
+        </div>
+
+        <small>${persen}% Lunas</small>
 
         <div class="kreditAction">
             ${tombol}
@@ -266,6 +283,11 @@ async function simpanKredit(){
 
   if(!nominalKredit || Number(nominalKredit) <= 0){
     showToast("Nominal tidak valid");
+    return;
+  }
+
+  if(nominalPinjaman > nominalKredit) {
+    showToast("Nominal Pinjaman lebih besar dari Nominal Kredit");
     return;
   }
 
@@ -544,6 +566,8 @@ async function bayarKredit(idKredit, idDompet, nominal) {
   btn.disabled = true;
   btn.innerText = "Menyimpan...";
 
+  try {
+
   const res = await fetch(API, {
     method: "POST",
     body: JSON.stringify({
@@ -574,6 +598,15 @@ async function bayarKredit(idKredit, idDompet, nominal) {
       }, 800);
   } else {
     showToast(hasil.msg || "Gagal bayar");
+  }
+  } catch(err){
+
+    console.error(err);
+
+    showToast(
+      "Error: " + err.message
+    );
+
     btn.disabled = false;
     btn.innerText = "Simpan";
   }

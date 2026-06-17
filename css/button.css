@@ -586,3 +586,18 @@ cursor:pointer;
 .hidden {
   display: none;
 }
+
+.progressWrap{
+  width:100%;
+  height:8px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+.progressBar{
+  height:100%;
+  background:#2d89ef;
+  border-radius:999px;
+}

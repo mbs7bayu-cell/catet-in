@@ -303,12 +303,14 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  margin-top: -10px;
 }
 
 .btnEye{
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:right;
+  margin-top: 0;
 
   width:32px;
   height:32px;
@@ -327,11 +329,11 @@ body{
 }
 
 .btnEye:hover{
-  background:rgba(0,0,0,.08);
+  background:none;
 }
 
 .dark .btnEye:hover{
-  background:rgba(255,255,255,.08);
+  background:none;
 }
 
 .btnEye:focus{
@@ -341,6 +343,7 @@ body{
 .labelSaldo{
   font-size:12px;
   color:var(--text);
+  align-items: center;
 }
 
 
