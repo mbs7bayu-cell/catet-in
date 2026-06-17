@@ -5,6 +5,7 @@
   --primary:#3B82C4;
   --cardMenu:#ffffff;
   --button:#3B82C4;
+  --cardList: #ffffff;
 }
 
 .dark{
@@ -14,6 +15,8 @@
   --primary:#1e1e1e;
   --cardMenu:#1e1e1e;
   --button:#333;
+  --cardList: #222;
+
 }
 
 body{

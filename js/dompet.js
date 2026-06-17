@@ -22,11 +22,17 @@ async function loadData() {
 
   try{
 
-    const res =
-      await fetch(API);
+    const user = JSON.parse(
+      sessionStorage.getItem("user") ||
+      localStorage.getItem("user") ||
+      localStorage.getItem("activeUser")
+    );
 
-    dompetList =
-      await res.json();
+    const res = await fetch(
+      `${API}?mode=dompet&userId=${user.userId}`
+    );
+
+    dompetList = await res.json();
 
     localStorage.setItem(
       "dompetCache",
@@ -51,37 +57,20 @@ function render() {
 
   const dompetListEl =
     document.getElementById("dompetList");
-  
-  const user = JSON.parse(
-    sessionStorage.getItem("user") ||
-    localStorage.getItem("user") ||
-    localStorage.getItem("activeUser")
-  );
-
-  if(!user){
-
-    location.href = "login.html";
-  }
 
   dompetListEl.innerHTML = "";
 
-  const filtered =
-    dompetList.filter(d =>
-      d.id_user === user.userId
-    );
-
-  if(filtered.length === 0){
+  if(dompetList.length === 0){
 
     dompetListEl.innerHTML =
       "<p class='kosong'>Belum ada dompet</p>";
 
     dompetListEl.classList.remove("skeleton-card");
 
-
     return;
   }
 
-  filtered.forEach(d => {
+  dompetList.forEach(d => {
 
     const card =
       document.createElement("div");
@@ -112,8 +101,7 @@ function render() {
 
   });
 
-      dompetListEl.classList.remove("skeleton-card");
-
+  dompetListEl.classList.remove("skeleton-card");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -43,12 +43,7 @@ function render() {
 
   kreditListEl.innerHTML = "";
 
-  const filtered =
-    kreditList.filter(d =>
-      d.id_user === user.userId
-    );
-
-  if(filtered.length === 0){
+  if(kreditList.length === 0){
 
     kreditListEl.innerHTML =
       "<p class='kosong'>Tidak ada kredit.</p>";
@@ -59,7 +54,7 @@ function render() {
     return;
   }
 
-  filtered.forEach(d => {
+  kreditList.forEach(d => {
 
     const total = Number(d.nominal_kredit);
     const sisa = Number(d.sisa_kredit);
@@ -71,14 +66,14 @@ function render() {
 
       tombol = `
         <button
-          onclick="openBayarKredit('${d.id_kredit}')"
+          onclick="event.stopPropagation(); openBayarKredit('${d.id_kredit}')"
           class="btnBayarKredit"
         >
           Bayar
         </button>
 
         <button
-          onclick="hapusKredit('${d.id_kredit}')"
+          onclick="event.stopPropagation(); hapusKredit('${d.id_kredit}')"
           class="btnHapusKredit"
         >
           Hapus
@@ -91,7 +86,7 @@ function render() {
 
       tombol = `
         <button
-          onclick="openBayarKredit('${d.id_kredit}')"
+          onclick="event.stopPropagation(); openBayarKredit('${d.id_kredit}')"
           class="btnBayarKredit"
         >
           Bayar
@@ -104,7 +99,7 @@ function render() {
 
       tombol = `
         <button
-          onclick="hapusKredit('${d.id_kredit}')"
+          onclick="event.stopPropagation(); hapusKredit('${d.id_kredit}')"
           class="btnHapusKredit"
         >
           Hapus
@@ -124,57 +119,57 @@ function render() {
     const card =
       document.createElement("div");
 
+    card.className = "kreditCard";
+
+    card.onclick = () => {
+      bukaDetailKredit(d.id_kredit);
+    };
+
     card.innerHTML = `
-      <div class="kreditCard">
-
-        <div class="kreditInfo">
-          <h4>${d.nama_kredit}</h4>
-          <small>${d.catatan}</small>
-        </div>
-
-        <div class="kreditNominal">
-          <div>
-            <span>Total</span>
-            <b>
-              Rp ${Number(d.nominal_kredit)
-                .toLocaleString("id-ID")}
-            </b>
-          </div>
-        </div>
-
-        <div class="kreditNominal">
-          <div>
-            <span>Sisa</span>
-            <b class="sisaKredit">
-              Rp ${Number(d.sisa_kredit)
-                .toLocaleString("id-ID")}
-            </b>
-          </div>
-        </div>
-
-        <div class="kreditNominal">
-            <div>
-            <span>Status</span>
-            <b>
-              ${d.status}
-            </b>
-          </div>
-        </div>
-
-        <div class="progressWrap">
-          <div
-            class="progressBar"
-            style="width:${persen}%"
-          ></div>
-        </div>
-
-        <small>${persen}% Lunas</small>
-
-        <div class="kreditAction">
-            ${tombol}
-        </div>
-
+  
+      <div class="kreditInfo">
+        <h4>${d.nama_kredit}</h4>
+        <small>${d.catatan}</small>
       </div>
+
+      <div class="kreditNominal">
+        <div>
+          <span>Total</span>
+          <b>
+            Rp ${Number(d.nominal_kredit).toLocaleString("id-ID")}
+          </b>
+        </div>
+      </div>
+
+      <div class="kreditNominal">
+        <div>
+          <span>Sisa</span>
+          <b class="sisaKredit">
+            Rp ${Number(d.sisa_kredit).toLocaleString("id-ID")}
+          </b>
+        </div>
+      </div>
+
+      <div class="kreditNominal">
+        <div>
+          <span>Status</span>
+          <b>${d.status}</b>
+        </div>
+      </div>
+
+      <div class="progressWrap">
+        <div
+          class="progressBar"
+          style="width:${persen}%"
+        ></div>
+      </div>
+
+      <small>${persen}% Lunas</small>
+
+      <div class="kreditAction">
+        ${tombol}
+      </div>
+
     `;
 
     kreditListEl.classList.remove("skeleton-card");
@@ -419,51 +414,46 @@ cekJenisKredit();
 async function loadDompet(){
 
   const user = JSON.parse(
-    sessionStorage.getItem("user") ||
-    localStorage.getItem("user") ||
-    localStorage.getItem("activeUser")
+      sessionStorage.getItem("user") ||
+      localStorage.getItem("user") ||
+      localStorage.getItem("activeUser")
+    );
+
+    if(!user){
+
+      location.href = "login.html";
+    }
+
+    try{
+
+      const res = await fetch(
+    `${API}?mode=dompet&userId=${user.userId}`
   );
 
-  if(!user){
+  daftarDompet = await res.json();
 
-    location.href = "login.html";
-  }
+  const tujuan =
+    document.getElementById("sumberTujuan");
 
-  try{
+  tujuan.innerHTML = `
+    <option value="">
+      -- pilih dompet --
+    </option>
+  `;
 
-    const res = await fetch(API);
+  daftarDompet.forEach(d => {
 
-    const data = await res.json();
+    const text =
+      `${d.nama} - Rp ${Number(d.saldo).toLocaleString("id-ID")}`;
 
-    const tujuan =
-      document.getElementById("sumberTujuan");
+    const opt = document.createElement("option");
 
-    tujuan.innerHTML =
-      `
-      <option value="">
-        -- pilih dompet --
-      </option>
-      `;
+    opt.value = d.id_sumber;
+    opt.textContent = text;
 
-    const milikUser =
-      data.filter(d => d.id_user === user.userId);
+    tujuan.appendChild(opt);
 
-    daftarDompet = milikUser;
-
-
-    milikUser.forEach(d => {
-
-      const text =
-        `${d.nama} - Rp ${Number(d.saldo).toLocaleString("id-ID")}`;
-
-      const opt2 = document.createElement("option");
-
-      opt2.value = d.id_sumber;
-      opt2.textContent = text;
-
-      tujuan.appendChild(opt2);
-
-    });
+  });
 
   }catch(err){
 
@@ -679,5 +669,66 @@ function resetForm(){
   document.getElementById("catatan").value = "";
   document.getElementById("nominalPinjaman").value = "";
 
+}
+
+// ====================== buka kredit ==================
+async function bukaDetailKredit(idKredit){
+
+  const modal =
+    document.getElementById("modalDetailKredit");
+
+  const body =
+    document.getElementById("detailKreditBody");
+
+  body.innerHTML = "Memuat riwayat...";
+
+  // tampilkan modal dulu
+  modal.style.display = "flex";
+
+  try{
+
+    const user = JSON.parse(
+      sessionStorage.getItem("user") ||
+      localStorage.getItem("user") ||
+      localStorage.getItem("activeUser")
+    );
+
+    const res = await fetch(
+      `${API}?mode=detailKredit&idKredit=${idKredit}&userId=${user.userId}`
+    );
+
+    const data = await res.json();
+
+    if(data.length === 0){
+      body.innerHTML =
+        "<p>Belum ada pembayaran.</p>";
+      return;
+    }
+
+    body.innerHTML = data.map(item => `
+      <div class="riwayatItem">
+        <b>
+          Rp ${Number(item.nominal).toLocaleString("id-ID")}
+        </b>
+        <br>
+        <small>${formatTanggal(item.tanggal)}</small>
+        <br>
+        <small>Metode: ${item.nama_dompet}</small>
+      </div>
+    `).join("");
+
+  }catch(err){
+
+    body.innerHTML =
+      "<p>Gagal memuat data.</p>";
+
+    console.error(err);
+  }
+}
+
+function tutupModalDetail(){
+  document
+    .getElementById("modalDetailKredit")
+    .style.display = "none";
 }
 

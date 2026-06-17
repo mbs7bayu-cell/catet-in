@@ -15,11 +15,11 @@ async function loadDompet(){
 
   try{
 
-    const res =
-      await fetch(API);
+    const res = await fetch(
+      `${API}?mode=dompet&userId=${user.userId}`
+    );
 
-    const data =
-      await res.json();
+    const data = await res.json();
 
     const select =
       document.getElementById("sumberDana");
@@ -30,23 +30,14 @@ async function loadDompet(){
       </option>
     `;
 
-    // hanya dompet user
-    const milikUser =
-      data.filter(d =>
-        String(d.id_user) ===
-        String(user.userId)
-      );
-
-    milikUser.forEach(d => {
+    data.forEach(d => {
 
       const opt =
         document.createElement("option");
 
-      opt.value =
-        d.id_sumber;
+      opt.value = d.id_sumber;
 
       opt.textContent =
-
         `${d.nama} (${d.tipe}) - Rp ${Number(d.saldo).toLocaleString("id-ID")}`;
 
       select.appendChild(opt);

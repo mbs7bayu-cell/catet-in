@@ -13,10 +13,14 @@ async function loadDompet(){
 
   try{
 
-    const res = await fetch(API);
+    const res = await fetch(
+      `${API}?mode=dompet&userId=${user.userId}`
+    );
+
     const data = await res.json();
 
-    const select = document.getElementById("sumberDana");
+    const select =
+      document.getElementById("sumberDana");
 
     select.innerHTML = `
       <option value="">
@@ -24,12 +28,10 @@ async function loadDompet(){
       </option>
     `;
 
-    const milikUser =
-      data.filter(d => d.id_user === user.userId);
+    data.forEach(d => {
 
-    milikUser.forEach(d => {
-
-      const opt = document.createElement("option");
+      const opt =
+        document.createElement("option");
 
       opt.value = d.id_sumber;
 

@@ -22,46 +22,45 @@ async function loadDompet(){
 
   try{
 
-    const res = await fetch(API);
+      const res = await fetch(
+        `${API}?mode=dompet&userId=${user.userId}`
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    const asal =
-      document.getElementById("sumberAsal");
+      const asal =
+        document.getElementById("sumberAsal");
 
-    const tujuan =
-      document.getElementById("sumberTujuan");
+      const tujuan =
+        document.getElementById("sumberTujuan");
 
-    asal.innerHTML =
-      `
-      <option value="">
-        -- pilih dompet --
-      </option>
+      asal.innerHTML = `
+        <option value="">
+          -- pilih dompet --
+        </option>
       `;
 
-    tujuan.innerHTML =
-      `
-      <option value="">
-        -- pilih dompet --
-      </option>
+      tujuan.innerHTML = `
+        <option value="">
+          -- pilih dompet --
+        </option>
       `;
 
-    const milikUser =
-      data.filter(d => d.id_user === user.userId);
-
-    milikUser.forEach(d => {
+    data.forEach(d => {
 
       const text =
         `${d.nama} - Rp ${Number(d.saldo).toLocaleString("id-ID")}`;
 
-      const opt1 = document.createElement("option");
+      const opt1 =
+        document.createElement("option");
 
       opt1.value = d.id_sumber;
       opt1.textContent = text;
 
       asal.appendChild(opt1);
 
-      const opt2 = document.createElement("option");
+      const opt2 =
+        document.createElement("option");
 
       opt2.value = d.id_sumber;
       opt2.textContent = text;
@@ -73,7 +72,7 @@ async function loadDompet(){
   }catch(err){
 
     console.error(err);
-    showToast("Gagal load dompet");
+
   }
 }
 
