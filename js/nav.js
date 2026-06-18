@@ -9,3 +9,7 @@ function lihatLaporan(){
 function lihatDashboard(){
   window.location.href = "dashboard.html";
 }
+
+function lihatProfil(){
+  window.location.href = "user-profil.html";
+}

@@ -394,6 +394,14 @@ async function simpanKredit(){
 
     btn.disabled = false;
     btn.innerText = "Simpan";
+  }finally{
+
+  // selalu aktifkan kembali tombol
+  btn.disabled = false;
+
+  if(btn.innerText === "Menyimpan..."){
+    btn.innerText = "Simpan";
+  }
   }
 }
 
@@ -601,6 +609,8 @@ async function bayarKredit(idKredit, idDompet, nominal) {
       }, 800);
   } else {
     showToast(hasil.msg || "Gagal bayar");
+    btn.disabled = false;
+    btn.innerText = "Simpan";
   }
   } catch(err){
 

@@ -126,7 +126,8 @@ if(rememberLogin){
 
     const user = JSON.parse(
       sessionStorage.getItem("user") ||
-      localStorage.getItem("user")
+      localStorage.getItem("user") ||
+      localStorage.getItem("activeUser")
     );
 
     if(
@@ -482,35 +483,71 @@ async function hapusTransaksi(id){
 
 // ================= LOAD =================
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-  loadThemeDashboard();
+loadThemeDashboard();
 
-  const pesan =
-    sessionStorage.getItem("toastMessage");
+const pesan =
+sessionStorage.getItem("toastMessage");
 
-  if (pesan) {
-    showToast(pesan);
-    sessionStorage.removeItem("toastMessage");
-  }
+if (pesan) {
+  showToast(pesan);
+  sessionStorage.removeItem("toastMessage");
+}
 
-  const btn =
-      document.getElementById(
-        "btnToggleSaldo"
+if (user) {
+
+  const res = await fetch(
+    API + "?mode=getProfil&id_user=" + user.userId
+  );
+
+  const r = await res.json();
+
+  if (r.ok) {
+
+    const profil = r.data;
+
+    if (
+      !profil.nama ||
+      !profil.gmail
+    ) {
+
+      showToast(
+        "Lengkapi profil terlebih dahulu"
       );
 
-    if(btn){
-      btn.textContent =
-        saldoDisembunyikan
-          ? "🙈"
-          : "👁";
+      setTimeout(() => {
+        location.href = "profil.html";
+      }, 1000);
+
+      return;
     }
 
-
-  if(!document.hidden){
-
-    loadDashboard();
-
+    document.getElementById("userInfo").innerHTML =
+     `Login : <b>`  + profil.nama || user.noHp + `</b>`;
   }
+}
+
+
+const btn =
+document.getElementById(
+"btnToggleSaldo"
+);
+
+if(btn){
+
+  btn.textContent =
+    saldoDisembunyikan
+      ? "🙈"
+      : "👁";
+
+}
+
+
+if(!document.hidden){
+
+  loadDashboard();
+
+}
 
 });
