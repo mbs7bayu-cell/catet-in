@@ -4,7 +4,7 @@
 /* ================ profil card ================== */
 
 .profil-card{
-  background:#fff;
+  background:var(--cardMenu);
   border-radius:12px;
   padding:16px;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
@@ -28,7 +28,7 @@
 }
 
 .label{
-  color:#666;
+  color:var(--text);
   font-weight:500;
 }
 
@@ -43,11 +43,11 @@
   padding: 6px 10px;
   border: none;
   border-radius: 8px;
-  background: #444444;
-  color: white;
+  background: var(--button);
+  color: var(--text);
   cursor: pointer;
 }
 
 .btnProfile:hover{
-  background: #666666;
+  background: var(--button);
 }
