@@ -14,21 +14,59 @@ async function loadData() {
     location.href = "login.html";
   }
 
+  const kreditListEl =
+    document.getElementById("kreditList");
+  
+  
+  const cache =
+    localStorage.getItem("kreditList");
+
+  if(cache){
+
+    render(
+      JSON.parse(cache)
+    );
+
+    kreditListEl.classList.remove("skeleton-card");
+
+  }else{
+
+    kreditListEl.classList.add("skeleton-card");
+
+  }
+
+  try {
+
+
   const res = await fetch(`${API}?mode=kredit&userId=${user.userId}`);
 
   kreditList = await res.json();
 
+  localStorage.setItem(
+      "kreditList",
+      JSON.stringify(kreditList)
+    );
+
   console.log(kreditList);
 
-  render();
+  render(kreditList);
+}catch(err){
+
+    console.error(err);
+
+    showToast(
+      "Gagal load kredit"
+    );
+
+  }finally{
+
+    kreditListEl.classList.remove("skeleton-card");
+
+  }
+
 }
 
-function render() {
-
-  const kreditListEl =
-    document.getElementById("kreditList");
-  
-  kreditListEl.classList.add("skeleton-card");
+function render(hasil) {
 
   const user = JSON.parse(
     sessionStorage.getItem("user") ||
@@ -41,20 +79,20 @@ function render() {
     location.href = "login.html";
   }
 
+  const kreditListEl =
+    document.getElementById("kreditList");
+
   kreditListEl.innerHTML = "";
 
-  if(kreditList.length === 0){
+  if(hasil.length === 0){
 
     kreditListEl.innerHTML =
       "<p class='kosong'>Tidak ada kredit.</p>";
 
-    kreditListEl.classList.remove("skeleton-card");
-
-
     return;
   }
 
-  kreditList.forEach(d => {
+  hasil.forEach(d => {
 
     const total = Number(d.nominal_kredit);
     const sisa = Number(d.sisa_kredit);
@@ -183,9 +221,6 @@ function render() {
 
     `;
 
-    kreditListEl.classList.remove("skeleton-card");
-
-
     kreditListEl.appendChild(card);
 
   });
@@ -215,6 +250,12 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   loadData();
+});
+
+window.addEventListener("pageshow", (e) => {
+  if(e.persisted){
+    loadData();
+  }
 });
 
 

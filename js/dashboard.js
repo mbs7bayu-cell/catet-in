@@ -156,6 +156,9 @@ if(rememberLogin){
 
 function renderDashboard(hasil){
 
+    hideSkeleton();
+
+
   dashboardData = hasil;
 
   // saldo
@@ -312,17 +315,17 @@ async function loadDashboard(){
   const cache =
     localStorage.getItem("dashboard");
 
-  if(!cache){
-
-    showSkeleton();
-
-  }else{
-
-    hideSkeleton();
+  if(cache){
 
     renderDashboard(
       JSON.parse(cache)
     );
+
+    hideSkeleton();
+
+  }else{
+
+    showSkeleton();
 
   }
 
@@ -337,7 +340,6 @@ async function loadDashboard(){
     const hasil =
       await res.json();
 
-    // simpan cache terbaru
     localStorage.setItem(
       "dashboard",
       JSON.stringify(hasil)
@@ -481,6 +483,30 @@ async function hapusTransaksi(id){
   }
 }
 
+// ========================= telegram =========================
+function hubungkanTelegram(){
+
+const user =
+JSON.parse(
+  sessionStorage.getItem("user") ||
+  localStorage.getItem("user") ||
+  localStorage.getItem("activeUser")
+);
+
+if(!user){
+  alert("User belum login");
+  return;
+}
+
+const link =
+"https://t.me/catetin_bymbs_bot?start="
++
+user.userId;
+
+window.open(link, "_blank");
+
+}
+
 // ================= LOAD =================
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -507,10 +533,7 @@ if (user) {
 
     const profil = r.data;
 
-    if (
-      !profil.nama ||
-      !profil.gmail
-    ) {
+    if (!profil.nama || !profil.gmail) {
 
       showToast(
         "Lengkapi profil terlebih dahulu"
@@ -518,6 +541,32 @@ if (user) {
 
       setTimeout(() => {
         location.href = "profil.html";
+      }, 1000);
+
+      return;
+    }
+
+    // cek dompet
+    const resDompet = await fetch(
+      API +
+      "?mode=dompet&userId=" +
+      user.userId
+    );
+
+    const dataDompet =
+      await resDompet.json();
+
+    if (
+      !Array.isArray(dataDompet) ||
+      dataDompet.length === 0
+    ) {
+
+      showToast(
+        "Buat minimal 1 dompet terlebih dahulu"
+      );
+
+      setTimeout(() => {
+        location.href = "dompet.html";
       }, 1000);
 
       return;
@@ -543,11 +592,10 @@ if(btn){
 
 }
 
-
-if(!document.hidden){
-
   loadDashboard();
+  
+});
 
-}
-
+window.addEventListener("pageshow", () => {
+  loadDashboard();
 });

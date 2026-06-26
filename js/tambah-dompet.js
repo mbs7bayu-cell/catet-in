@@ -31,7 +31,7 @@ function simpan() {
       btn.innerText = "Berhasil ✔";
       
       setTimeout(() => {
-        window.location.href = "tambah-dompet.html";
+        window.location.href = "dompet.html";
       }, 800);
 
     } else {

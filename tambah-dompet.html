@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/button.css">
 <link rel="stylesheet" href="css/navigasi.css">
+<link rel="stylesheet" href="css/tambah-dompet.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -32,17 +34,45 @@
         </select>
         <span id="loading" style="display:none">⏳ Menyimpan...</span>
         <button id="btnSimpan" onclick="simpan()">Simpan</button>
-        <button class="btnBack">Kembali</button>
 
     </div>
 
 </div>
+
+<div class="bottomNav">
+
+            <button onclick="lihatDashboard()">
+              <span>🏠</span>
+              <small>Home</small>
+            </button>
+
+            <button onclick="lihatDompet()">
+              <span>💳</span>
+              <small>Dompet</small>
+            </button>
+
+            <button onclick="lihatLaporan()">
+              <span>📊</span>
+              <small>Laporan</small>
+            </button>
+
+            <button onclick="lihatProfil()">
+              <span>👤</span>
+              <small>Profil</small>
+            </button>
+
+</div>
+
+<footer id="footer">
+© 2026 Catet-In by mbayusubagja
+</footer>
 
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/api.js"></script>
 <script src="js/tambah-dompet.js"></script>
+<script src="js/nav.js"></script>
 
 </body>
 </html>
